@@ -8,7 +8,7 @@ import numpy as np
 model = joblib.load('model_dt.pkl')
 
 # ── Page Config ───────────────────────────────────────────────────
-st.set_page_config(page_title="Vehicle Maintenance Predictor", page_icon="🚗")
+st.set_page_config(page_title="Vehicle Maintenance Predictor", page_icon="")
 st.title("Vehicle Maintenance Predictor")
 st.write("Fill in the vehicle details below to check if maintenance is needed.")
 
