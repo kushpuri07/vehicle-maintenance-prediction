@@ -4,45 +4,45 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ── Load Model
+# Load Model
 model = joblib.load('model_dt.pkl')
 
-# ── Page Config ───────────────────────────────────────────────────
+# Page Config 
 st.set_page_config(page_title="Vehicle Maintenance Predictor", page_icon="")
 st.title("Vehicle Maintenance Predictor")
 st.write("Fill in the vehicle details below to check if maintenance is needed.")
 
-# ── Input Form ────────────────────────────────────────────────────
-reported_issues     = st.selectbox("Reported Issues",    [0, 1, 2, 3, 4, 5])
-brake_condition     = st.selectbox("Brake Condition",    [0, 1, 2], format_func=lambda x: {0:"Good", 1:"Worn", 2:"Critical"}[x])
-battery_status      = st.selectbox("Battery Status",     [0, 1, 2], format_func=lambda x: {0:"Good", 1:"Weak",  2:"Dead"}[x])
-service_history     = st.selectbox("Service History",    [0, 1],    format_func=lambda x: {0:"No",   1:"Yes"}[x])
-accident_history    = st.selectbox("Accident History",   [0, 1],    format_func=lambda x: {0:"No",   1:"Yes"}[x])
-maintenance_history = st.selectbox("Maintenance History",[0, 1],    format_func=lambda x: {0:"No",   1:"Yes"}[x])
+# Input Form
+reported_issues = st.selectbox("Reported Issues",[0, 1, 2, 3, 4, 5])
+brake_condition = st.selectbox("Brake Condition",[0, 1, 2], format_func=lambda x: {0:"Good", 1:"Worn", 2:"Critical"}[x])
+battery_status = st.selectbox("Battery Status",[0, 1, 2], format_func=lambda x: {0:"Good", 1:"Weak", 2:"Dead"}[x])
+service_history = st.selectbox("Service History",[0, 1], format_func=lambda x: {0:"No", 1:"Yes"}[x])
+accident_history = st.selectbox("Accident History",[0, 1], format_func=lambda x: {0:"No", 1:"Yes"}[x])
+maintenance_history = st.selectbox("Maintenance History",[0, 1], format_func=lambda x: {0:"No", 1:"Yes"}[x])
 
-# ── Predict ───────────────────────────────────────────────────────
+# Predict 
 if st.button("Check Maintenance"):
     sample = pd.DataFrame([{
-        'Reported_Issues':     reported_issues,
-        'Brake_Condition':     brake_condition,
-        'Battery_Status':      battery_status,
-        'Service_History':     service_history,
-        'Accident_History':    accident_history,
+        'Reported_Issues': reported_issues,
+        'Brake_Condition': brake_condition,
+        'Battery_Status': battery_status,
+        'Service_History': service_history,
+        'Accident_History': accident_history,
         'Maintenance_History': maintenance_history
     }])
 
-    result     = model.predict(sample)[0]
-    proba      = model.predict_proba(sample)[0]
+    result = model.predict(sample)[0]
+    proba = model.predict_proba(sample)[0]
     confidence = round(max(proba) * 100, 2)
 
-    # ── Prediction Result ─────────────────────────────────────────
+    # Prediction Result 
     st.markdown("---")
     if result == 1:
         st.error(f" Maintenance Needed")
     else:
         st.success(f" No Maintenance Needed")
 
-    # ── Confidence Score ──────────────────────────────────────────
+    # Confidence Score 
     st.markdown("### Prediction Confidence")
     col1, col2 = st.columns(2)
     # with col1:
@@ -50,7 +50,7 @@ if st.button("Check Maintenance"):
     with col2:
         st.metric(label="Model Accuracy", value="96.38%")
 
-    # ── Feature Importance Chart ──────────────────────────────────
+    # Feature Importance Chart
     st.markdown("### Feature Importance")
 
     feature_names  = ['Reported_Issues', 'Brake_Condition', 'Battery_Status',
