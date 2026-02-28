@@ -117,6 +117,3 @@ vehicle-maintenance-prediction/
 
 ---
 
-## Live Demo
-
-🔗 [Vehicle Maintenance Predictor — Streamlit App](https://your-app-link-here.streamlit.app)
