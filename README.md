@@ -2,7 +2,6 @@
 
 ### From Condition-Based Diagnostics to Intelligent Maintenance Decisions
 
----
 
 ## Project Overview
 
@@ -11,7 +10,6 @@ This project involves the design and implementation of a machine learning system
 - **Milestone 1:** Classical machine learning techniques applied to real-world vehicle condition data to predict maintenance need and identify the key drivers behind it.
 - **Milestone 2:** Extension into an agent-based AI application that autonomously reasons about vehicle health, retrieves maintenance best practices (RAG), and generates structured intervention recommendations.
 
----
 
 ## Constraints & Requirements
 
@@ -20,7 +18,6 @@ This project involves the design and implementation of a machine learning system
 - **Framework:** Scikit-learn (M1) / LangGraph (M2)
 - **Hosting:** Mandatory (Streamlit Cloud)
 
----
 
 ## Technology Stack
 
@@ -36,7 +33,6 @@ This project involves the design and implementation of a machine learning system
 | Agent Framework (M2) | LangGraph, Chroma/FAISS (RAG) |
 | LLMs (M2) | Open-source models or Free-tier APIs |
 
----
 
 ## Milestones & Deliverables
 
@@ -70,7 +66,6 @@ This project involves the design and implementation of a machine learning system
 - GitHub Repository & complete codebase
 - Demo Video (Max 5 mins)
 
----
 
 ## Dataset
 
@@ -91,7 +86,6 @@ This project involves the design and implementation of a machine learning system
 | Accident_History | — |
 | Maintenance_History | — |
 
----
 
 ## Project Structure
 
@@ -105,7 +99,6 @@ vehicle-maintenance-prediction/
 └── README.md
 ```
 
----
 
 ## Team
 
@@ -115,5 +108,4 @@ vehicle-maintenance-prediction/
 | Kush | EDA and visualizations, feature selection, model training with Pipelines, overfitting fix, model saving |
 | Aadit | Model evaluation, model comparison chart, Streamlit app development, GitHub setup and deployment |
 
----
 
