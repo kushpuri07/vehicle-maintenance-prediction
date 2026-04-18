@@ -1,4 +1,8 @@
-"""Streamlit UI for the Vehicle Maintenance & Fleet Management Agent."""
+"""Streamlit UI for the Vehicle Maintenance & Fleet Management Agent.
+
+Chatbot is now in the sidebar — toggleable, non-intrusive, and always
+accessible once a report is generated.
+"""
 import os
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
@@ -19,6 +23,45 @@ from agent.chat import answer_question
 st.set_page_config(
     page_title="Vehicle Fleet Management Assistant",
     layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# ── Custom CSS for polished look ───────────────────────────────────
+st.markdown(
+    """
+    <style>
+    /* Style the sidebar into a chat panel */
+    section[data-testid="stSidebar"] {
+        background: #0f0f0f;
+        border-left: 1px solid #333;
+        width: 420px !important;
+    }
+    section[data-testid="stSidebar"] > div {
+        padding-top: 1rem;
+    }
+    /* Chat bubble hint (bottom-right floating hint) */
+    .chat-hint {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: linear-gradient(135deg, #FF1744, #FF9100);
+        color: white;
+        padding: 14px 22px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        z-index: 9999;
+        animation: pulse 2s infinite;
+        pointer-events: none;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 st.title("Vehicle Fleet Management Assistant")
@@ -37,11 +80,7 @@ TIER_COLORS = {
 }
 
 TIMELINE_ORDER = [
-    "Immediate",
-    "Within 1 week",
-    "Within 2 weeks",
-    "Within 1 month",
-    "Next service",
+    "Immediate", "Within 1 week", "Within 2 weeks", "Within 1 month", "Next service",
 ]
 
 LABELS = {
@@ -212,17 +251,14 @@ def render_report(report: dict, features: dict | None = None):
         unsafe_allow_html=True,
     )
 
-    # 1. Executive Summary
     st.markdown("#### 1. Executive Summary")
     summary = report.get("executive_summary") or report.get("health_summary") or "—"
     section_box(summary, border_color=color)
 
-    # 2. Data Sheet
     if features:
         st.markdown("#### 2. Vehicle Data Sheet")
         render_data_sheet(features)
 
-    # 3. Health Overview
     section_num = 3 if features else 2
     if features:
         st.markdown(f"#### {section_num}. Vehicle Health Overview")
@@ -233,7 +269,6 @@ def render_report(report: dict, features: dict | None = None):
         st.markdown("<div style='margin-bottom:16px;'></div>", unsafe_allow_html=True)
         section_num += 1
 
-    # Findings
     st.markdown(f"#### {section_num}. Key Findings")
     findings = report.get("detailed_findings", [])
     triage_reasons = report.get("triage_reasons", [])
@@ -273,7 +308,6 @@ def render_report(report: dict, features: dict | None = None):
         st.caption("No material findings.")
     section_num += 1
 
-    # Actions
     st.markdown(f"#### {section_num}. Recommended Actions")
     plan = report.get("action_plan", [])
 
@@ -329,14 +363,12 @@ def render_report(report: dict, features: dict | None = None):
             )
     section_num += 1
 
-    # Risk
     risk = report.get("risk_assessment", "")
     if risk:
         st.markdown(f"#### {section_num}. Risk if Unaddressed")
         section_box(risk, border_color="#FF9100")
         section_num += 1
 
-    # Preventive
     prev = report.get("preventive_recommendations", [])
     if prev:
         st.markdown(f"#### {section_num}. Preventive Recommendations")
@@ -350,7 +382,6 @@ def render_report(report: dict, features: dict | None = None):
         )
         section_num += 1
 
-    # Sources
     sources = report.get("sources_cited", [])
     if sources:
         st.markdown(f"#### {section_num}. Sources Consulted")
@@ -395,6 +426,81 @@ def render_agent_trace(result: dict):
         st.caption("See report above.")
 
 
+# ── Sidebar Chatbot ────────────────────────────────────────────────
+def render_sidebar_chatbot():
+    """Chatbot lives in the sidebar — toggleable, non-intrusive."""
+    if "current_report" not in st.session_state:
+        with st.sidebar:
+            st.markdown("### Assistant Chat")
+            st.caption("Generate a report first, then ask follow-up questions here.")
+        return
+
+    with st.sidebar:
+        st.markdown(
+            """
+            <div style="background:linear-gradient(135deg,#1a1a1a,#0f0f0f);
+                        padding:16px 18px; border-radius:8px;
+                        border:1px solid #333; margin-bottom:12px;">
+              <div style="font-size:16px; font-weight:bold; color:#fff;">
+                Report Assistant
+              </div>
+              <div style="font-size:12px; color:#888; margin-top:4px;">
+                Ask anything about the current report.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Suggested prompt buttons
+        st.caption("Quick questions:")
+        suggested = [
+            "What should I prioritize first?",
+            "Why is this the risk tier?",
+            "What if I delay the service?",
+            "Explain the costs.",
+        ]
+        for i, q in enumerate(suggested):
+            if st.button(q, key=f"sug_{i}", use_container_width=True):
+                st.session_state["pending_question"] = q
+
+        st.markdown("---")
+
+        # Chat history
+        for msg in st.session_state.get("chat_history", []):
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        # Input handling
+        pending = st.session_state.pop("pending_question", None)
+        user_input = st.chat_input("Type a question...")
+        question = pending or user_input
+
+        if question:
+            with st.chat_message("user"):
+                st.markdown(question)
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking..."):
+                    answer = answer_question(
+                        question=question,
+                        report=st.session_state["current_report"],
+                        chat_history=st.session_state.get("chat_history", []),
+                    )
+                st.markdown(answer)
+
+            st.session_state.setdefault("chat_history", []).append(
+                {"role": "user", "content": question}
+            )
+            st.session_state["chat_history"].append(
+                {"role": "assistant", "content": answer}
+            )
+
+        if st.session_state.get("chat_history"):
+            if st.button("Clear chat", key="clear_chat", use_container_width=True):
+                st.session_state["chat_history"] = []
+                st.rerun()
+
+
 # ── Form ───────────────────────────────────────────────────────────
 def build_single_vehicle_input():
     col1, col2 = st.columns(2)
@@ -429,7 +535,7 @@ tab_single, tab_fleet, tab_about = st.tabs([
 ])
 
 # ═══════════════════════════════════════════════════════════════════
-# TAB 1: SINGLE VEHICLE (with chat)
+# TAB 1: SINGLE VEHICLE
 # ═══════════════════════════════════════════════════════════════════
 with tab_single:
     st.markdown("Fill in the vehicle details below to get a full maintenance assessment.")
@@ -445,77 +551,27 @@ with tab_single:
             st.write("Steps 2-5 complete.")
             status.update(label=f"Analysis complete in {elapsed:.1f}s", state="complete")
 
-        # Save to session so re-renders (from chat) don't lose the report
         st.session_state["current_report"]       = result["final_report"]
         st.session_state["current_features"]     = vehicle_data
         st.session_state["current_agent_result"] = result
         st.session_state["chat_history"]         = []
 
-    # ── Render report + chat if we have one ────────────────────────
     if "current_report" in st.session_state:
         st.markdown("---")
         render_report(
             st.session_state["current_report"],
             features=st.session_state.get("current_features"),
         )
-
-        # ── Chatbot ────────────────────────────────────────────────
-        st.markdown("---")
-        st.markdown("### Ask follow-up questions about this report")
-        st.caption(
-            "The assistant has full context of the report above and can pull "
-            "from the maintenance guidelines to answer your questions."
-        )
-
-        # Suggested quick-question buttons
-        suggested = [
-            "What should I prioritize first?",
-            "Why is this the risk tier?",
-            "What happens if I delay?",
-            "Explain the costs.",
-        ]
-        sug_cols = st.columns(len(suggested))
-        for i, q in enumerate(suggested):
-            if sug_cols[i].button(q, key=f"sug_{i}", use_container_width=True):
-                st.session_state["pending_question"] = q
-
-        # Render chat history
-        for msg in st.session_state.get("chat_history", []):
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
-
-        # Take input: either a pending suggested question or fresh user text
-        pending = st.session_state.pop("pending_question", None)
-        user_input = st.chat_input("Ask a question about this report...")
-        question = pending or user_input
-
-        if question:
-            with st.chat_message("user"):
-                st.markdown(question)
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking..."):
-                    answer = answer_question(
-                        question=question,
-                        report=st.session_state["current_report"],
-                        chat_history=st.session_state.get("chat_history", []),
-                    )
-                st.markdown(answer)
-
-            st.session_state.setdefault("chat_history", []).append(
-                {"role": "user", "content": question}
-            )
-            st.session_state["chat_history"].append(
-                {"role": "assistant", "content": answer}
-            )
-
-        if st.session_state.get("chat_history"):
-            if st.button("Clear chat history", key="clear_chat"):
-                st.session_state["chat_history"] = []
-                st.rerun()
-
-        # Agent trace at the bottom
         st.markdown("---")
         render_agent_trace(st.session_state["current_agent_result"])
+
+        # Floating hint pointing to sidebar
+        st.markdown(
+            """<div class="chat-hint">
+                 ← Ask the Assistant
+               </div>""",
+            unsafe_allow_html=True,
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -681,15 +737,14 @@ with tab_about:
 
     ### Pipeline
 
-    1. **Predict**:- a trained Decision Tree (scikit-learn) scores the vehicle
-    2. **Triage**:- deterministic rules assign a risk tier (CRITICAL / HIGH / MEDIUM / LOW)
-    3. **Retrieve**:- relevant maintenance guidelines fetched via RAG (Chroma + sentence-transformers)
-    4. **Reason**:- Llama 3.3 70B (Groq) synthesizes a grounded detailed assessment
-    5. **Report**:- structured output with multiple sections, citations, and disclaimer
+    1. **Predict** — a trained Decision Tree (scikit-learn) scores the vehicle
+    2. **Triage** — deterministic rules assign a risk tier (CRITICAL / HIGH / MEDIUM / LOW)
+    3. **Retrieve** — relevant maintenance guidelines fetched via RAG (Chroma + sentence-transformers)
+    4. **Reason** — Llama 3.3 70B (Groq) synthesizes a grounded detailed assessment
+    5. **Report** — structured output with multiple sections, citations, and disclaimer
 
-    After the report is generated, a **follow-up chatbot** lets you ask
-    questions about the assessment. It has access to the full report context
-    and pulls fresh RAG excerpts relevant to each question.
+    A **sidebar chatbot** lets the user ask follow-up questions about the generated
+    report. It has full report context and pulls fresh RAG excerpts for each question.
 
     ### Stack
 
@@ -705,5 +760,9 @@ with tab_about:
     - All claims must cite a source document; retrieved docs are the only ground truth
     - Triage uses rule-based logic (not LLM) for safety-critical classification
     - Standard safety disclaimer attached to every report
-    - Chatbot is scoped to report context,won't answer unrelated questions
+    - Chatbot is scoped to report context — won't answer unrelated questions
     """)
+
+
+# ── Always render the sidebar chatbot last ─────────────────────────
+render_sidebar_chatbot()
