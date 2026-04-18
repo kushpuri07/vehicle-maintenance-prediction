@@ -23,7 +23,7 @@ from agent.chat import answer_question
 st.set_page_config(
     page_title="Vehicle Fleet Management Assistant",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ── Custom CSS for polished look ───────────────────────────────────
@@ -39,25 +39,36 @@ st.markdown(
     section[data-testid="stSidebar"] > div {
         padding-top: 1rem;
     }
-    /* Chat bubble hint (bottom-right floating hint) */
-    .chat-hint {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
+
+    /* Label the sidebar toggle arrow with "Ask AI" text */
+    /* When sidebar is collapsed */
+    button[data-testid="stBaseButton-headerNoPadding"][kind="headerNoPadding"],
+    [data-testid="stSidebarCollapsedControl"] button,
+    [data-testid="collapsedControl"] {
+        position: relative !important;
+    }
+    [data-testid="stSidebarCollapsedControl"]::after,
+    [data-testid="collapsedControl"]::after {
+        content: "Ask AI";
+        position: absolute;
+        left: 44px;
+        top: 50%;
+        transform: translateY(-50%);
         background: linear-gradient(135deg, #FF1744, #FF9100);
         color: white;
-        padding: 14px 22px;
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        z-index: 9999;
-        animation: pulse 2s infinite;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        box-shadow: 0 2px 12px rgba(255, 23, 68, 0.4);
         pointer-events: none;
+        animation: pulse-ai 2s infinite;
     }
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.03); }
+    @keyframes pulse-ai {
+        0%, 100% { transform: translateY(-50%) scale(1); opacity: 1; }
+        50%      { transform: translateY(-50%) scale(1.05); opacity: 0.9; }
     }
     </style>
     """,
@@ -565,12 +576,10 @@ with tab_single:
         st.markdown("---")
         render_agent_trace(st.session_state["current_agent_result"])
 
-        # Floating hint pointing to sidebar
-        st.markdown(
-            """<div class="chat-hint">
-                 ← Ask the Assistant
-               </div>""",
-            unsafe_allow_html=True,
+        # Small prompt to use the sidebar chatbot
+        st.info(
+            "💬 Have questions about this report? Click the **Ask AI** button on "
+            "the left to open the chat assistant."
         )
 
 
