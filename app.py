@@ -19,14 +19,14 @@ from agent.nodes.predict import FEATURE_ORDER
 from agent.chat import answer_question
 
 
-# ── Page Config ────────────────────────────────────────────────────
+# Page Config 
 st.set_page_config(
     page_title="Vehicle Fleet Management Assistant",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ── Custom CSS for polished look ───────────────────────────────────
+# Custom CSS for polished look 
 st.markdown(
     """
     <style>
@@ -82,7 +82,7 @@ st.caption(
 )
 
 
-# ── Constants ──────────────────────────────────────────────────────
+# Constants 
 TIER_COLORS = {
     "CRITICAL": "#FF1744",
     "HIGH":     "#FF9100",
@@ -102,7 +102,7 @@ LABELS = {
 }
 
 
-# ── Radar Chart ────────────────────────────────────────────────────
+# Radar Chart 
 def render_health_radar(features: dict, size: float = 5.0):
     scores = {
         "Brakes":       {0: 100, 1: 70, 2: 15}[features.get("Brake_Condition", 1)],
@@ -146,7 +146,7 @@ def render_health_radar(features: dict, size: float = 5.0):
     return fig, avg
 
 
-# ── Data Sheet ─────────────────────────────────────────────────────
+# Data Sheet 
 def render_data_sheet(features: dict):
     def _val(key, fmt=None):
         raw = features.get(key, "—")
@@ -210,7 +210,7 @@ def section_box(content_html, border_color="#333"):
     )
 
 
-# ── Report Rendering ───────────────────────────────────────────────
+# Report Rendering 
 def render_report(report: dict, features: dict | None = None):
     tier  = report.get("risk_tier", "UNKNOWN")
     color = TIER_COLORS.get(tier, "#888")
@@ -437,7 +437,7 @@ def render_agent_trace(result: dict):
         st.caption("See report above.")
 
 
-# ── Sidebar Chatbot ────────────────────────────────────────────────
+# Sidebar Chatbot 
 def render_sidebar_chatbot():
     """Chatbot lives in the sidebar — toggleable, non-intrusive."""
     if "current_report" not in st.session_state:
@@ -512,7 +512,7 @@ def render_sidebar_chatbot():
                 st.rerun()
 
 
-# ── Form ───────────────────────────────────────────────────────────
+# Form 
 def build_single_vehicle_input():
     col1, col2 = st.columns(2)
     with col1:
@@ -540,14 +540,13 @@ def build_single_vehicle_input():
     }
 
 
-# ── Tabs ───────────────────────────────────────────────────────────
+# Tabs 
 tab_single, tab_fleet, tab_about = st.tabs([
     "Single Vehicle", "Fleet Analysis", "About",
 ])
 
-# ═══════════════════════════════════════════════════════════════════
+
 # TAB 1: SINGLE VEHICLE
-# ═══════════════════════════════════════════════════════════════════
 with tab_single:
     st.markdown("Fill in the vehicle details below to get a full maintenance assessment.")
 
@@ -583,9 +582,7 @@ with tab_single:
         )
 
 
-# ═══════════════════════════════════════════════════════════════════
 # TAB 2: FLEET ANALYSIS
-# ═══════════════════════════════════════════════════════════════════
 with tab_fleet:
     st.markdown(
         "Upload a CSV with multiple vehicles to get a fleet-wide analysis. "
@@ -733,10 +730,7 @@ with tab_fleet:
             st.download_button("Download fleet report as CSV",
                 buf.getvalue().encode(), file_name="fleet_report.csv", mime="text/csv")
 
-
-# ═══════════════════════════════════════════════════════════════════
 # TAB 3: ABOUT
-# ═══════════════════════════════════════════════════════════════════
 with tab_about:
     st.markdown("""
     ## About this system
@@ -773,5 +767,5 @@ with tab_about:
     """)
 
 
-# ── Always render the sidebar chatbot last ─────────────────────────
+# Always render the sidebar chatbot last
 render_sidebar_chatbot()

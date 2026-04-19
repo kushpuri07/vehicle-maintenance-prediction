@@ -14,7 +14,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
-# ── Config ────────────────────────────────────────────────────────
+# Config 
 DOCS_DIR    = Path("maintenance_docs")
 CHROMA_DIR  = "chroma_db"
 CHUNK_SIZE  = 600        # characters per chunk (~150 words)
