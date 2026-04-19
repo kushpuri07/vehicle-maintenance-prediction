@@ -545,9 +545,8 @@ tab_single, tab_fleet, tab_about = st.tabs([
     "Single Vehicle", "Fleet Analysis", "About",
 ])
 
-# ═══════════════════════════════════════════════════════════════════
+
 # TAB 1: SINGLE VEHICLE
-# ═══════════════════════════════════════════════════════════════════
 with tab_single:
     st.markdown("Fill in the vehicle details below to get a full maintenance assessment.")
 
@@ -583,9 +582,7 @@ with tab_single:
         )
 
 
-# ═══════════════════════════════════════════════════════════════════
 # TAB 2: FLEET ANALYSIS
-# ═══════════════════════════════════════════════════════════════════
 with tab_fleet:
     st.markdown(
         "Upload a CSV with multiple vehicles to get a fleet-wide analysis. "
@@ -733,10 +730,7 @@ with tab_fleet:
             st.download_button("Download fleet report as CSV",
                 buf.getvalue().encode(), file_name="fleet_report.csv", mime="text/csv")
 
-
-# ═══════════════════════════════════════════════════════════════════
 # TAB 3: ABOUT
-# ═══════════════════════════════════════════════════════════════════
 with tab_about:
     st.markdown("""
     ## About this system
@@ -773,5 +767,5 @@ with tab_about:
     """)
 
 
-# ── Always render the sidebar chatbot last ─────────────────────────
+# Always render the sidebar chatbot last
 render_sidebar_chatbot()
