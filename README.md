@@ -4,6 +4,11 @@
 
 ---
 
+## Quick Links
+
+- **Live Application:** https://vehicle-maintenance-prediction07.streamlit.app/
+- **GitHub Repository:** https://github.com/kushpuri07/vehicle-maintenance-prediction
+
 ## Project Overview
 
 This project implements an AI-driven fleet analytics system that predicts vehicle maintenance needs and extends into an autonomous fleet management assistant.
@@ -165,34 +170,25 @@ Dropped features (near-zero correlation, noise): Vehicle_Model, Fuel_Type, Trans
 
 ```
 vehicle-maintenance-prediction/
-├── app.py                              # Streamlit application (UI + chatbot)
-├── model_dt.pkl                        # Trained Decision Tree pipeline
-├── vehicle_dataset.csv                 # Cleaned dataset
-├── vehicle_maintenance.ipynb           # ML training notebook
-├── requirements.txt                    # Dependencies
-├── README.md
-├── .env.example                        # Template for API keys
-├── .gitignore
 │
-├── agent/                              # LangGraph agent
-│   ├── __init__.py
-│   ├── state.py                        # VehicleState schema
-│   ├── graph.py                        # Workflow definition
-│   ├── chat.py                         # Follow-up chatbot
+├── app.py                          # Streamlit UI (771 lines)
+│
+├── agent/                          # 5-Node LangGraph Workflow
+│   ├── graph.py                    # Workflow definition
+│   ├── state.py                    # VehicleState schema
+│   ├── chat.py                     # Follow-up chatbot
 │   └── nodes/
-│       ├── __init__.py
-│       ├── predict.py                  # Node 1: ML prediction
-│       ├── triage.py                   # Node 2: Rule-based tiering
-│       ├── retrieve.py                 # Node 3: RAG retrieval
-│       ├── reason.py                   # Node 4: LLM reasoning
-│       └── report.py                   # Node 5: Report assembly
+│       ├── predict.py              # Node 1: ML prediction
+│       ├── triage.py               # Node 2: Rule-based tiering
+│       ├── retrieve.py             # Node 3: RAG retrieval
+│       ├── reason.py               # Node 4: LLM reasoning
+│       └── report.py               # Node 5: Report assembly
 │
-├── rag/                                # Retrieval system
-│   ├── __init__.py
-│   ├── build_index.py                  # Builds Chroma DB from docs
-│   └── retriever.py                    # Query interface
+├── rag/                            # Vector DB & Retrieval
+│   ├── retriever.py                # Query interface
+│   └── build_index.py              # Builds Chroma DB from docs
 │
-├── maintenance_docs/                   # RAG knowledge base (8 docs)
+├── maintenance_docs/               # Knowledge Base (8 markdown files)
 │   ├── 01_brake_maintenance.md
 │   ├── 02_tire_maintenance.md
 │   ├── 03_battery_maintenance.md
@@ -202,7 +198,19 @@ vehicle-maintenance-prediction/
 │   ├── 07_fleet_risk_tiers.md
 │   └── 08_safety_disclaimers.md
 │
-└── chroma_db/                          # Vector DB (generated, gitignored)
+├── documentations/                 # Project Documentation
+│   ├── Agent_Workflow_Documentation.docx
+│   ├── Project_Report.docx
+│   └── system_architecture.png
+│
+├── chroma_db/                      # Vector DB (persisted embeddings, gitignored)
+│
+├── model_dt.pkl                    # Trained Decision Tree pipeline
+├── vehicle_maintenance.ipynb       # ML training notebook
+├── requirements.txt                # Dependencies
+├── .env.example                    # Template for API keys
+├── .gitignore
+└── README.md
 ```
 
 ---
